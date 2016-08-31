@@ -1,21 +1,15 @@
-import urllib
 from bs4 import BeautifulSoup
-url = "http://stellarpharma.tradeindia.com/paracetamol-tablets-500mg--654524.html"
-html = urllib.urlopen(url).read()
-soup = BeautifulSoup(html)
 
-# kill all script and style elements
-for script in soup(["script", "style"]):
-    script.extract()    # rip it out
-
-# get text
-text = soup.get_text()
-
-# break into lines and remove leading and trailing space on each
-lines = (line.strip() for line in text.splitlines())
-# break multi-headlines into a line each
-chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-# drop blank lines
-text = '\n'.join(chunk for chunk in chunks if chunk)
-
-print(text)
+import requests
+import json
+import re
+import urllib
+import ssl
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
+site = urllib.urlopen('http://duckduckgo.com/html/?q=rustom+movie', context=ctx)
+data = site.read()
+parsed = BeautifulSoup(data)
+# print parsed
+print parsed.findAll('div', {'class': 'result__extras__url'})[3].a['href']

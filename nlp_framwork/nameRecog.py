@@ -3,16 +3,20 @@ from spacy.en import English
 
 parser = English()
 from itertools import tee, islice
-import re
 from collections import Counter
 import enchant
-import requests
-import json
-import urllib
 from bs4 import BeautifulSoup
 
 d = enchant.Dict("en_US")
 from nltk.corpus import stopwords
+import requests
+import re
+import urllib
+import ssl
+
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
 
 ratingDict = {}
 stop = set(stopwords.words('english'))
@@ -25,22 +29,24 @@ def scrorer(Name):
         ratingDict[Name] = 10
 
 
-def duckSearch(searchList,numberOFSeraches):
+def duckSearch(searchList, numberOFSeraches):
     """
     :param searchList:
     :param numberOFSeraches:
     :return: list of urls
     """
     query = '+'.join(searchList)
-    query = query.replace(" ","+")
+    query = query.replace(" ", "+")
     print 'http://duckduckgo.com/?q=' + query
-    response = requests.get('http://duckduckgo.com/i.js?q=' + query + "&t=h_&ia=web", verify=False)
-    data = response.text
-    data = json.loads(data)
-    returnUrlsList=[]
-    for i in range (0,numberOFSeraches):
-        returnUrlsList.append(data['results'][i]['url'])
+    site = urllib.urlopen('http://duckduckgo.com/html/?q=' + query, context=ctx)
+    data = site.read()
+    parsed = BeautifulSoup(data)
+
+    returnUrlsList = []
+    for i in range(0, numberOFSeraches):
+        returnUrlsList.append(parsed.findAll('div', {'class': 'result__extras__url'})[i].a['href'])
     return returnUrlsList
+
 
 def pageContentGrabber(url):
     html = urllib.urlopen(url).read()
@@ -57,6 +63,7 @@ def pageContentGrabber(url):
     # drop blank lines
     text = '\n'.join(chunk for chunk in chunks if chunk)
     return text
+
 
 def nameEntitySpacy(multiSentence):
     parsedData = parser(multiSentence)
@@ -94,8 +101,6 @@ def nameEntitySpacy(multiSentence):
         for token in sent:
             if (token.pos_ == 'PROPN'):
                 ofInterest.append(token.orth_)
-
-
 
     # ents = list(parsedData.ents)
     # for entity in ents:
@@ -139,6 +144,7 @@ def ngrams(lst, n):
         else:
             break
 
+
 def chunkingAndCollocationFinder(multiSentence):
     """
     :param multiSentence: is text from html
@@ -172,34 +178,24 @@ def chunkingAndCollocationFinder(multiSentence):
                 if (synonymes in sent.lower() and " ".join(i).lower() in sent.lower()):
                     scrorer(" ".join(i))  # scoring
                     print "director", " ".join(i)
-    # print ratingDict
-
+                    # print ratingDict
 
 
 ###############Start##############################
-#Sarching for 'director' and 'movie'
-InitialSearch = ['Director of','rustom movie']
-InitialSearchResultURLS = duckSearch(InitialSearch,3)
+# Sarching for 'director' and 'movie'
+InitialSearch = ['Director of', 'rustom movie']
+InitialSearchResultURLS = duckSearch(InitialSearch, 3)
 print InitialSearchResultURLS
 for url in InitialSearchResultURLS:
-    pageContent=pageContentGrabber(url)
+    pageContent = pageContentGrabber(url)
     print pageContent
     chunkingAndCollocationFinder(pageContent)
 ###############AdvanceSearch######################
-#SecondSearch
+# SecondSearch
 for key in ratingDict:
-    InitialSearch = ['Director of','rustom',key] #"key is the name of the person who is supposed to be director"
-    InitialSearchResultURLS = duckSearch(InitialSearch,3)
+    InitialSearch = ['Director of', 'rustom', key]  # "key is the name of the person who is supposed to be director"
+    InitialSearchResultURLS = duckSearch(InitialSearch, 3)
     for url in InitialSearchResultURLS:
-        pageContent=pageContentGrabber(url)
+        pageContent = pageContentGrabber(url)
         chunkingAndCollocationFinder(pageContent)
 print ratingDict
-
-
-
-
-
-
-
-
-
