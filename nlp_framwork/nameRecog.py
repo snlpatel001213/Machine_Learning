@@ -162,14 +162,14 @@ def chunkingAndCollocationFinder(multiSentence):
     for span in parsedData.sents:
         sent = ''.join(parsedData[i].string for i in range(span.start, span.end)).strip()
         sents.append(sent)
-    directorSynonymes = ['director', 'directed', 'direction']
+    directorSynonymes = ['ingredient', 'ingredients', 'api']
     for i in sorted(Counter(ngrams(words, 2))):
         # print " ".join(i) # got all the relevant names
         for sent in sents:
             for synonymes in directorSynonymes:
                 if (synonymes in sent.lower() and " ".join(i).lower() in sent.lower()):
                     scrorer(" ".join(i))  # scoring
-                    print "director", " ".join(i)
+                    print "ingredient", " ".join(i)
 
     for i in sorted(Counter(ngrams(words, 3))):
         # print " ".join(i) # got all the relevant names
@@ -177,13 +177,13 @@ def chunkingAndCollocationFinder(multiSentence):
             for synonymes in directorSynonymes:
                 if (synonymes in sent.lower() and " ".join(i).lower() in sent.lower()):
                     scrorer(" ".join(i))  # scoring
-                    print "director", " ".join(i)
+                    print "ingredient", " ".join(i)
                     # print ratingDict
 
 
 ###############Start##############################
 # Sarching for 'director' and 'movie'
-InitialSearch = ['Director of', 'rustom movie']
+InitialSearch = ['ingredient of', 'aspirin']
 InitialSearchResultURLS = duckSearch(InitialSearch, 3)
 print InitialSearchResultURLS
 for url in InitialSearchResultURLS:
@@ -193,7 +193,7 @@ for url in InitialSearchResultURLS:
 ###############AdvanceSearch######################
 # SecondSearch
 for key in ratingDict:
-    InitialSearch = ['Director of', 'rustom', key]  # "key is the name of the person who is supposed to be director"
+    InitialSearch = ['ingredient of', 'aspirin', key]  # "key is the name of the person who is supposed to be director"
     InitialSearchResultURLS = duckSearch(InitialSearch, 3)
     for url in InitialSearchResultURLS:
         pageContent = pageContentGrabber(url)
