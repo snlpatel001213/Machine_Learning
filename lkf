@@ -1,0 +1,36 @@
+
+function myFunction () {
+	var eachcard = document.getElementsByClassName('mn-pymk-list__card');
+	for (var i = 0; i < eachcard.length; i++) {
+		var myDomElement = eachcard[i];
+		var name = myDomElement.querySelector('.mn-pymk-list__card .mn-person-info__name').innerHTML;
+		var work = myDomElement.querySelector('.mn-pymk-list__card .mn-person-info__occupation').innerHTML;
+		console.log(name +"    |   "+ work)
+		var occupation = ['architect','robotics','software engineer','sde','adobe','facebook','machine learning','artificial intelligencce','microsoft','google','amazon','software','IBM',' research engineer','NLP','machine learning','developer','vision','bioinformatics'];
+		try{
+			for (var eachOccuNo = 0; eachOccuNo<occupation.length; eachOccuNo++ ){
+				var regex = new RegExp( occupation[eachOccuNo], 'gi' );
+				matchResult = work.match(regex);
+				try{
+					if (matchResult.length > 0) {
+						console.log("###"+matchResult)
+						// console.log("TRUE");
+						// send request
+						myDomElement.querySelector('.button-secondary-small').click();
+						break;
+					}
+					
+				}
+				catch (err){
+					console.log();
+					//console.log(err+"DO NOT MATCH")
+				}
+				$('html,body').animate({ scrollTop: 9999 }, 'slow');
+			// break;
+			}
+		}
+		catch  (err){
+			console.log(err);
+		}
+	}
+}
